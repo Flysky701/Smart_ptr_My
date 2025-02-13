@@ -39,6 +39,7 @@ class shared_ptr{
             }
             return *this;
         }
+
         shared_ptr& operator =(shared_ptr&& other) noexcept{
             if(this != &other){
                 release();
@@ -79,4 +80,57 @@ class shared_ptr{
 };
 
 template <typename T>
-class 
+class unique_ptr{
+    public:
+        explicit unique_ptr(T* ptr = nullptr) noexcept
+            :ptr_(ptr){}
+        
+        unique_ptr(const unique_ptr &) noexcept = delete;
+
+        unique_ptr(unique_ptr &&other) noexcept 
+            :ptr_(other.ptr_){
+                other.ptr_ = nullptr;
+            }
+        
+        ~unique_ptr(){
+            delete ptr_;
+        }
+
+        unique_ptr& operator=(const unique_ptr& other) = delete;
+
+        unique_ptr& operator=(unique_ptr&& other) noexcept{
+            if(this != other){
+
+                this -> ptr_ = other.ptr_;
+                other.ptr_ = nullptr;
+            }
+        }
+
+        T* operator-> ()const noexcept{
+            return ptr_;
+        }
+
+        T& operator* ()const noexcept{
+            return *ptr_;
+        }
+
+        T* get()const noexcept{
+            return ptr_;
+        }
+        T* release() noexcept{
+            T* old = ptr_;
+            ptr_ = nullptr;
+            return old;
+        }
+
+        void reset(T* new_re = nullptr){
+            delete ptr_;
+            ptr_ = new_re;
+        }
+
+        void swap(const unique_ptr &other){
+            std::swap(ptr_,  other.ptr_);
+        }
+    private:
+        T* ptr_;
+};
