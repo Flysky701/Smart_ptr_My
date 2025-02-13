@@ -54,7 +54,11 @@ class shared_ptr{
             return *ptr_;
         }
 
-        T& operator-> ()const noexcept{
+        T* operator-> ()const noexcept{
+            return ptr_;
+        }
+
+        T* get(){
             return ptr_;
         }
 
@@ -99,11 +103,12 @@ class unique_ptr{
         unique_ptr& operator=(const unique_ptr& other) = delete;
 
         unique_ptr& operator=(unique_ptr&& other) noexcept{
-            if(this != other){
-
+            if(this != &other){
+                delete ptr_;
                 this -> ptr_ = other.ptr_;
                 other.ptr_ = nullptr;
             }
+            return *this;
         }
 
         T* operator-> ()const noexcept{
@@ -128,7 +133,7 @@ class unique_ptr{
             ptr_ = new_re;
         }
 
-        void swap(const unique_ptr &other){
+        void swap(unique_ptr &other){
             std::swap(ptr_,  other.ptr_);
         }
     private:
