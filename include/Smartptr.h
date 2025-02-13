@@ -4,18 +4,20 @@
 template <typename T>
 class shared_ptr{
     public:
-        explicit shared_ptr(T* ptr_ = nullptr) noexcept
+        explicit shared_ptr(T* ptr = nullptr) noexcept
             : ptr_(ptr), count_(ptr ? new std::atomic<size_t> (1) : nullptr)
         {}
         
+        // 复制
         shared_ptr(const shared_ptr& other) noexcept
             : ptr_(other.ptr_), count_(other.count_)
         {
             if(count_){
-                count -> fetch_add(1, std::memor_order_relaxed);
+                count_ -> fetch_add(1, std::memory_order_relaxed);
             }
         }
-
+        
+        // 移动
         shared_ptr(shared_ptr&& other) noexcept
             : ptr_(other.ptr_), count_(other.count_)
         {
@@ -26,26 +28,24 @@ class shared_ptr{
         ~shared_ptr(){
             release();
         }
-
         shared_ptr& operator =(const shared_ptr& other) noexcept{
             if(this != &other){
                 release();
                 ptr_ = other.ptr_;
                 count_ = other.count_;
                 if(count_){
-                    count_ -> fetch_add(1);
+                    count_ -> fetch_add(1, std::memory_order_relaxed);
                 }
             }
             return *this;
         }
-        
-        shared_ptr& operator =(const shared_ptr&& other) noexcept{
+        shared_ptr& operator =(shared_ptr&& other) noexcept{
             if(this != &other){
                 release();
                 ptr_ = other.ptr_;
                 count_ = other.count_;
-                other.count_ = nullptr;
                 other.ptr_ = nullptr;
+                other.count_ = nullptr;
             }
         }
         
@@ -77,3 +77,6 @@ class shared_ptr{
             }
         }
 };
+
+template <typename T>
+class 
